@@ -1,0 +1,96 @@
+<div class="col-md-6 offset-md-3 col-xs-12">
+<h4 class="text-xs-center">{{message}}</h4>
+<form  class="form-inline"  [formGroup]="portfolioForm"  #f="ngForm" (ngSubmit)="submitPortfolioForm()">
+          <fieldset [disabled]="isSubmitting">
+	  	<fieldset class="form-group">
+			<div class="form-group" [ngClass]="{ 'has-error': f.submitted && !portfolioForm.controls['portfolioname'].valid}">
+				<input type="text"  size=45 style="font-size: 7pt;" height=10 placeholder="Portfolio Name" formControlName="portfolioname" [formControl]="portfolioForm.controls['portfolioname']"/>
+				 <input type="submit" value="Load" class="btn btn-default" (click)="submitPortfolioForm()" size=1 style="font-size: 7pt; background-color: #0275d8;color: #FFFFFF;border-color: #0275d8;height=3;padding: 3px 12px" />
+				<div *ngIf="f.submitted && !portfolioForm.controls['portfolioname'].valid"  style="font-size: 7pt;" class="help-block">Portfolio Name is Required</div>
+			</div>
+	   	</fieldset>
+         </fieldset>
+</form>
+
+<br />
+
+<input type="button" value="Add Stock" class="btn btn-default" (click)="addStock()" size=1 style="font-size: 7pt;background-color: #f0ad4e;border-color: #f0ad4e;padding: 3px 12px;color: #FFFFFF;" />
+<div style="overflow:auto">
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <td style="padding: 0px;"><font size="1">Stock</font></td>
+                <td style="padding: 0px;"><font size="1">Quantity</font></td>
+                <td style="padding: 0px;"><font size="1">Total</font></td>
+		<td style="padding: 0px;"><font size="1">Date</font></td>
+                <td style="padding: 0px;"></td>
+                <td style="padding: 0px;"></td>
+            </tr>
+        </thead>
+        <tbody>
+ 
+            <tr *ngFor="let stock of stocks;let i=idx">
+                <ng-template [ngTemplateOutlet]="loadTemplate(stock)" [ngTemplateOutletContext]="{ $implicit: stock, idx: i }"></ng-template>
+            </tr>
+ 
+        </tbody>
+    </table>
+</div>
+<h5 class="text-xs-center">{{statusMessage}}</h5>
+</div> 
+ 
+<!--The Html Template for Read-Only Rows-->
+<ng-template #readOnlyTemplate let-stock>
+    <td  style="padding: 0px;"><font size="1">{{stock.stocksymbol}}</font></td>
+    <td style="padding: 0px;"><font size="1">{{stock.numberofshares}}</font></td>
+    <td style="padding: 0px;"><font size="1">{{stock.totalpurchaseprice}}</font></td>
+    <td style="padding: 0px;"><font size="1">{{stock.purchasedate}}</font></td>
+    <td style="padding: 0px;">
+        <input type="button" value="Edit" class="btn btn-default btn-sm" (click)="editStock(stock)" size=1 style="font-size: 7pt;padding: 3px 12px;"/>
+    </td>
+    <td style="padding: 0px;">
+        <input type="button" value="Delete" (click)="deleteStock(stock)" class="btn btn-danger btn-sm" size=1 style="font-size: 7pt;padding: 3px 12px;" />
+    </td>
+</ng-template>
+<!--Ends Here-->
+<!--The Html Template for Editable Rows-->
+<ng-template #editTemplate>
+    <td style="padding: 0px;">
+        <!--<input type="text" [(ngModel)]="selstock.stocksymbol" size=3 style="font-size: 7pt;" height=10/> -->
+	<input  [(ngModel)]="selstock.stocksymbol"
+         [typeahead]="dataSource"
+	 (typeaheadLoading)="changeTypeaheadLoading($event)"
+         (typeaheadNoResults)="changeTypeaheadNoResults($event)"
+         (typeaheadOnSelect)="typeaheadOnSelect($event)"
+         [typeaheadOptionsLimit]="7"
+         [typeaheadMinLength]="0"
+	 typeaheadOptionField="Symbol"
+         value='{{selstock.stocksymbol}}'
+	 size=3 style="font-size: 7pt;" height=10	
+         >
+	<div *ngIf="typeaheadLoading===true">Loading</div>
+        <div *ngIf="typeaheadNoResults===true">&#10060; No Results Found</div>
+    </td>
+    <td style="padding: 0px;">
+        <input type="text" [(ngModel)]="selstock.numberofshares" size=3 style="font-size: 7pt;" height=10/>
+    </td>
+    <td style="padding: 0px;">
+        <input type="text" [(ngModel)]="selstock.totalpurchaseprice" size=3 style="font-size: 7pt;" height=10/>
+    </td>
+    <td style="padding: 0px;">
+        <!--<input type="text" [(ngModel)]="selstock.purchasedate" size=7 style="font-size: 7pt;" height=10/> -->
+	<input type="text"  value='{{selstock.purchasedate}}' size=7 style="font-size: 7pt;padding: 0px;" height=10 bsDatepicker [(ngModel)]="selstock.purchasedate" [bsConfig]="bsConfig" />
+	<!--<owl-date-time [(ngModel)]="selstock.purchasedate"
+                                   [dateFormat]="'YYYY-MM-DD'"
+                                   [type]="'calendar'" [placeHolder]="'yyyy/mm/dd'"
+                                   [inputId]="'input2'"  ></owl-date-time>-->
+    </td>
+    <td style="padding: 0px;">
+        <input type="button" size=0.3 value="Save" (click)="saveStock()" class="btn btn-success" style="font-size: 7pt;padding: 3px 12px;" />
+    </td>
+    <td style="padding: 0px;">
+       <input type="button" size=0.3 value="Cancel" (click)="cancel()" class="btn btn-warning" style="font-size: 7pt; padding: 3px 12px;" height=5/>
+    </td>
+ 
+</ng-template>
+<!--Ends Here-->

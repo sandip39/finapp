@@ -1,0 +1,140 @@
+import { Component, ViewChild, AfterViewInit, OnInit,ElementRef } from '@angular/core';
+import { jqxDockPanelComponent } from '../../../node_modules/jqwidgets-scripts/jqwidgets-ts/angular_jqxdockpanel';
+import { jqxComboBoxComponent } from '../../../node_modules/jqwidgets-scripts/jqwidgets-ts/angular_jqxcombobox';
+import { jqxGridComponent } from '../../../node_modules/jqwidgets-scripts/jqwidgets-ts/angular_jqxgrid';
+import { FormBuilder, Validators, FormGroup, FormControl } from '@angular/forms'; 
+
+
+import {ViewService} from '../_services/view.service';
+
+
+import { Stock } from '../_models/index';
+import { User } from '../_models/index';
+
+ 
+@Component({
+    moduleId: module.id,
+    templateUrl: './viewscreen.component.html',
+})
+ 
+export class ViewScreenComponent  implements OnInit {
+	@ViewChild('jqxDockPanel') DockPanel: jqxDockPanelComponent;
+	@ViewChild('first') firstElement: ElementRef;
+    	@ViewChild('second') secondElement: ElementRef;
+    	@ViewChild('third') thirdElement: ElementRef;
+	sampleform: FormGroup;  
+	data: any = this.generateData();
+	currentUser : User;
+
+	datajson: any[] = [
+                {"_id": "apple"},
+                {"_id": "orange"},
+                {"_id": "banana"}
+        ]
+
+	public sourcecombobox: Stock[];
+
+
+
+	generateData(): any[] 
+	{
+		let data = new Array();
+		
+		let _id = [
+        	'Affogato',
+        	'Americano',
+        	'Bicerin',
+        	'Breve',
+        	'Cafe Bombon',
+        	'Cafe au lait',
+        	'Caffe Corretto'
+		];
+		for (let i=0; i < 7; i++){
+			let row = {};
+			row['_id'] = _id[i];
+			data[i] = row;
+		}
+		
+		return data;
+	}
+
+
+
+	constructor (private viewserv: ViewService, fb:FormBuilder) { 
+		this. sampleform = fb.group({  
+        		'_id': [null]   // will use the property in html page  
+        	}) 
+	}
+
+	ngOnInit() {
+		
+      		//this.viewserv.getdropdowninfo().subscribe(response => {this.sourcecombobox = response;console.log(response); console.log("HHH");console.log(this.sourcecombobox);});
+		
+    	}
+
+
+//	dataAdapter: any = new jqx.dataAdapter(this.sourcecombobox);
+//		{
+  //      		beforeLoadComplete: function (records) {
+    //        			records[0]['_id'] = "Michael";
+      //      			return records;
+        //		}
+    	//	}
+		
+//	);
+
+
+	source: any =
+        {
+                //localdata: this.sourcecombobox,
+                datatype: 'json',
+                datafields:
+                [
+                        {name: '_id', type: 'string'}
+                ],
+		url: '../users/view/dropdowninfo'
+        };
+
+
+        dataAdapter: any = new jqx.dataAdapter(this.source, {
+		beforeSend: function (jqXHR, settings) {
+			//console.log(jqXHR);
+			//console.log(settings);
+			this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+			console.log(this.currentUser);
+			var token = "Bearer " + this.currentUser.token;			
+            		jqXHR.setRequestHeader('Authorization', token);
+        	}
+
+	});
+
+
+
+	ngAfterViewInit() {
+		let layoutsLength = 3;
+		let firstElement = this.firstElement.nativeElement;
+        	let secondElement = this.secondElement.nativeElement;
+        	let thirdElement = this.thirdElement.nativeElement;
+        	this.DockPanel.elementRef.nativeElement.style.color = 'white';
+		for (let i = 0; i < layoutsLength; i++) {
+                    this.DockPanel.elementRef.nativeElement.firstChild.firstChild.children[i].style.height = '70px';
+                }
+		firstElement.style.height = '5%';
+		secondElement.style.height = '60%';
+		thirdElement.style.height = '45%';
+		firstElement.setAttribute('dock', 'top');
+                secondElement.setAttribute('dock', 'top');
+                thirdElement.setAttribute('dock', 'top');
+		//this.viewserv.getdropdowninfo().subscribe(response => {this.sourcecombobox = response;console.log(response); console.log("HHH");console.log(this.sourcecombobox);});
+		//console.log(this.data);
+		console.log(this.sourcecombobox);
+		this.dataAdapter.dataBind();
+		this.DockPanel.refresh();
+			
+	
+	}
+
+
+}
+
+

@@ -1,0 +1,62 @@
+﻿import { Injectable } from '@angular/core';
+import { Http, Headers, RequestOptions, Response } from '@angular/http';
+import { Observable } from 'rxjs/Rx';
+import { BehaviorSubject } from 'rxjs/BehaviorSubject';
+import { ReplaySubject } from 'rxjs/ReplaySubject';
+import 'rxjs/add/operator/map';
+import 'rxjs/add/operator/catch';
+import 'rxjs/add/operator/distinctUntilChanged';
+
+import { User } from '../_models/index';
+
+@Injectable()
+export class UserService {
+    private currentUserSubject = new BehaviorSubject<User>(new User());
+    public currentUser = this.currentUserSubject.asObservable().distinctUntilChanged();
+
+    private isAuthenticatedSubject = new BehaviorSubject<boolean>(false);
+    public isAuthenticated = this.isAuthenticatedSubject.asObservable();
+
+
+    constructor(private http: Http) { }
+
+    getAll() {
+        return this.http.get('/users').map((response: Response) => response.json());
+    }
+
+    getById(_id: string) {
+        return this.http.get('/users/' + _id).map((response: Response) => response.json());
+    }
+
+    create(user: User) {
+        return this.http.post('/users/register', user);
+    }
+
+    resetpw(user: User) {
+        return this.http.post('/users/resetpw', user);
+    }
+
+
+    update(user: User) {
+        return this.http.put('/users/' + user._id, user);
+    }
+
+
+
+    delete(_id: string) {
+        return this.http.delete('/users/' + _id);
+    }
+
+    setAuth(user: User) {
+    	// Set current user data into observable
+    	this.currentUserSubject.next(user);
+    	// Set isAuthenticated to true
+    	this.isAuthenticatedSubject.next(true);
+    }
+
+    getCurrentUser(): User {
+    	return this.currentUserSubject.value;
+    }
+
+
+}

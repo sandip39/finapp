@@ -1,0 +1,234 @@
+import {TemplateRef, ViewChild} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
+import {Stock} from '../_models/stock';
+import {StockService} from '../_services/stock.service';
+import {Headers, Response} from '@angular/http';
+import {Observable} from 'rxjs/Observable';
+import 'rxjs/Rx';
+import { FormBuilder, FormGroup, Validators, FormControl } from '@angular/forms';
+//import { BsDatepickerModule } from 'ngx-bootstrap'
+import { BsDatepickerConfig } from 'ngx-bootstrap/datepicker';
+import 'rxjs/add/observable/of';
+import { TypeaheadMatch } from 'ngx-bootstrap/typeahead';
+
+import { User } from '../_models/index';
+
+
+
+//@Component({ selector: 'app-data', templateUrl: './app/app.component.html' })
+@Component({
+    moduleId: module.id,
+    templateUrl: 'portfoliocreate.component.html'
+})
+
+export class PortfolioCreateComponent implements OnInit {
+
+    currentUser: User;
+    portfolioForm: FormGroup;
+
+    //1. Template Ref types 
+    @ViewChild('readOnlyTemplate') readOnlyTemplate: TemplateRef<any>;
+    @ViewChild('editTemplate') editTemplate: TemplateRef<any>;
+    //2. Other Variables
+    message: string;
+    pname: string = '';
+    stock: Stock;
+    selstock: Stock;
+    bsValue: Date = new Date();
+    bsConfig: Partial<BsDatepickerConfig>;
+    stocks: Array<Stock>;
+    isNewRecord: boolean;
+    statusMessage: string;
+    //stockSymbol: FormControl = new FormControl();
+    stockSymbols: string[] = [
+    	'AAPL',
+	'AET',
+	'AMD',
+	'AMGN',
+	'AMZN',
+	'AZO',
+	'BAC',
+	'BIDU',
+	'BP',
+	'CHA',
+	'CHL',
+	'CVS',
+	'ERIC',
+	'F',
+	'FDX',
+	'FSENX',
+	'GE',
+	'GOOG',
+	'GS',
+	'GSK',
+	'HD',
+	'HDB',
+	'HPQ',
+	'HSBC',
+	'IBN',
+	'INFY',
+	'INTC',
+	'JNJ',
+	'JPM',
+	'KTOS',
+	'MSFT',
+	'NFLX',
+	'NKE',
+	'NOK',
+	'NVDA',
+	'PG',
+	'PTR',
+	'QCOM',
+	'REDFY',
+	'SHOP',
+	'SNAP',
+	'SQ',
+	'T',
+	'TGT',
+	'TSLA',
+	'TTM',
+	'UL',
+	'UNH',
+	'UPS',
+	'VLKAY',
+	'VOD',
+	'VZ',
+	'WFC',
+	'WIT',
+	'WMT',
+	'XOM',
+	'Z'
+	];
+
+
+
+
+
+    //3. Constructor injected with the Service Dependency
+    constructor(private serv: StockService, private fb: FormBuilder) {
+        this.stocks = new Array<Stock>();
+        this.message = 'Portfolio';
+	this.portfolioForm = this.fb.group({
+        	'portfolioname': ['', Validators.required],
+    	});
+	this.bsConfig = Object.assign({}, { containerClass: 'theme-dark-blue', showWeekNumbers: true });
+    }
+    //4. Load Portfolio
+    ngOnInit() {
+        //this.loadStock(this.portfolioname);
+    }
+ 
+    private loadStock(portfolioname) {
+        this
+            .serv
+            .getPortfolio(portfolioname)
+            .subscribe((response) => {
+		this.stocks = response;
+                //this.stocks = resp.json();
+		//console.log("DDDDD");
+                //console.log(this.stocks);    
+            });
+    }
+    //5. Add Stock
+ 
+    addStock() {
+        this.selstock = new Stock;
+	
+	this.selstock._id = "";
+	this.selstock.portfolioname = "";
+	this.selstock.userid = "";
+	this.selstock.serialnumber = 0;
+	this.selstock.stocksymbol = "";
+	this.selstock.numberofshares = 0;
+	this.selstock.totalpurchaseprice = 0;
+	this.selstock.purchasedate = "";
+
+        this
+            .stocks
+            .push(this.selstock);
+        this.isNewRecord = true;
+	//console.log(this.stocks);
+        //return this.editTemplate;
+    }
+ 
+    //6. Edit Stock
+    editStock(stock: Stock) {
+        this.selstock = stock;
+    }
+    //7. Load either Read-Only Template or EditTemplate
+    loadTemplate(stock: Stock) {
+        if (this.selstock && this.selstock._id == stock._id) {
+            return this.editTemplate;
+        } else {
+            return this.readOnlyTemplate;
+        }
+         
+ 
+    }
+    //8. Save Stock
+    saveStock() {
+	if(this.portfolioForm.get('portfolioname').value) {
+                this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+		this.selstock.portfolioname = this.portfolioForm.value;
+		this.selstock.userid = this.currentUser._id;
+		//console.log(this.selstock);
+        	if (this.isNewRecord) {
+            		//add a new Stock
+            		this.serv.addStock(this.selstock).subscribe((resp: Response) => {
+                		//this.stock = resp.json(),
+                    		this.statusMessage = 'Record Added Successfully.',
+                    		this.loadStock(this.portfolioForm.value);
+			//	console.log("KKKKK");
+            		});
+            		this.isNewRecord = false;
+			 //console.log("LLLLL");
+            		this.selstock = null;
+ 
+        	} else {
+            		//edit the record
+            		this.serv.updateStock(this.selstock).subscribe((resp: Response) => {
+                		this.statusMessage = 'Record Updated Successfully.',
+                    		this.loadStock(this.portfolioForm.value);
+            		});
+            		this.selstock = null;
+ 
+       		}
+	}
+	else {
+                this.statusMessage = 'Please Enter Portfolio Name';
+        }
+
+		
+    }
+    //9. Cancel edit
+    cancel() {
+        this.selstock = null;
+    }
+    //10 Delete Stock
+    deleteStock(stock: Stock) {
+        this.serv.deleteStock(stock._id).subscribe((resp: Response) => {
+            this.statusMessage = 'Record Deleted Successfully.',
+                this.loadStock(this.portfolioForm.value);
+        });
+ 
+    }
+
+    submitPortfolioForm() {
+	//console.log(this.portfolioForm.get('portfolioname').value);
+	if(this.portfolioForm.get('portfolioname').value) {
+		//this.currentUser = JSON.parse(localStorage.getItem('currentUser'));
+		this.loadStock(this.portfolioForm.value);
+		this.statusMessage = 'Portfolio Loaded';
+	}
+	else {
+		this.statusMessage = 'Please Enter Portfolio Name';
+	}
+	
+    }    
+    
+    createPortfolio() {
+        //console.log(this.portfolioForm.value);
+    }
+    
+}
+

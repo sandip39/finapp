@@ -1,0 +1,31 @@
+<div class="col-md-6 offset-md-3 col-xs-12">
+
+
+<jqxDockPanel #jqxDockPanel [width]="'100%'" [height]="510">
+	<div #first dock='left' style='background: #486974;'>
+		<jqxComboBox #myComboBox [width]="'50%'" [height]="'95%'" (onSelect)="onSelect($event)" 
+			[source]="dataAdapter" [theme]="'dark'" [displayMember]="'_id'" 
+			[valueMember]="'_id'" [selectedIndex]='0' [itemHeight]='25'>
+		</jqxComboBox>
+		<!--<select  [formControl]="sampleform.controls['_id']">  
+                                <option value="0">--Select--</option>  
+                                <option *ngFor="let portfolio of sourcecombobox"  
+                                        value={{portfolio._id}}>  
+                                    {{portfolio._id}}  
+                                </option>  
+         	</select> -->
+        </div>
+        <div #second dock='top' style='background: #368ba7;'>
+		<jqxGrid #myGrid (onCellselect)="myGridOnCellSelect($event)"
+    			[width]="'100%'" [height]="'100%'" [source]="dataAdapterGrid" 
+    			[pageable]="false" [autoheight]="false" [sortable]="true" [showaggregates]="true" 
+    			[altrows]="true"  [enabletooltips]="true"  [editable]="false" 
+    			[selectionmode]="'singlecell'" [theme]="'dark'" [scrollbarsize]="1">
+		</jqxGrid>
+        </div>
+        <div #third dock='right' style='background: #df7169;'>
+            Third Div
+        </div>
+</jqxDockPanel>
+
+</div>

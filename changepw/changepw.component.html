@@ -1,0 +1,23 @@
+<div class="col-md-6 col-md-offset-3">
+    <h2>Change Password</h2>
+    <form name="form1" (ngSubmit)="f.form.valid && cpass()" #f="ngForm" novalidate>
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !password.valid }">
+            <label for="password">Password</label>
+            <input type="password" class="form-control" name="password" [(ngModel)]="model.password" required validateEqual="confirmpassword" reverse="true" #password="ngModel" />
+		<label for="ng2-password-strength-bar">Password Strength: </label><ng2-password-strength-bar
+                	[passwordToCheck]="model.password"
+                	[barLabel]="barLabel">
+            	</ng2-password-strength-bar>
+            <div *ngIf="f.submitted && !password.valid" class="help-block">Password is required</div>
+        </div>
+        <div class="form-group" [ngClass]="{ 'has-error': f.submitted && !confirmpassword.valid }">
+            <label for="confirmpassword">Confirm Password</label>
+            <input type="password" class="form-control" name="confirmpassword" [(ngModel)]="model.confirmpassword" required validateEqual="password" #confirmpassword="ngModel"/>
+            <div *ngIf="f.submitted && !confirmpassword.valid" class="help-block">Password mismatch</div>
+        </div>
+        <div class="form-group">
+            <button class="btn btn-primary">Update</button>
+            <a [routerLink]="['/login']" class="btn btn-link">Cancel</a>
+        </div>
+    </form>
+</div>
