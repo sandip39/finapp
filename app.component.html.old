@@ -1,0 +1,32 @@
+﻿<!-- main app container -->
+
+<div class="page-header" style="background-image: url(https://upload.wikimedia.org/wikipedia/commons/5/51/ShiFengWaterFall_002.jpg)">
+  <div class="container-fluid">
+   <div class="row">
+        <img src="logo.png" class="img-responsive" style="border: 1px solid black; margin-top:10px; height:70px">
+   </div>
+</div>
+</div>
+
+
+<!-- <div class="container"> -->
+	<!--<div class="col-sm-8 col-sm-offset-2"> -->
+		<div class="jumbotron">
+			<div class="container">
+				<div class="col-sm-8 col-sm-offset-2">
+            			<alert></alert>
+            			<router-outlet></router-outlet>
+        			</div> 
+     			</div>
+		</div>
+	<!-- </div> -->
+<!-- </div> -->
+<!-- credits -->
+<!--<div class="text-center">
+    <p>
+        <a href="http://jasonwatmore.com/post/2017/02/22/mean-with-angular-2-user-registration-and-login-example-tutorial" target="_top">MEAN Stack with Angular 2 - User Registration and Login Example & Tutorial</a>
+    </p>
+    <p>
+        <a href="http://jasonwatmore.com" target="_top">JasonWatmore.com</a>
+    </p>
+</div> -->
